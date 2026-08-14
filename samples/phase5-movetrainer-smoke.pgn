@@ -1,0 +1,21 @@
+[Event "Phase 5 White Training"]
+[Site "ChessMentor Native"]
+[Date "2026.08.14"]
+[Round "1"]
+[White "Learner"]
+[Black "Trainer"]
+[Result "*"]
+
+{مرکز را کنترل کنید.} 1. e4 {پاسخ اصلی} (1. d4 {پاسخ جایگزین}) 1... e5
+2. Nf3 (2. Bc4) 2... Nc6 *
+
+[Event "Phase 5 Black Training"]
+[Site "ChessMentor Native"]
+[Date "2026.08.14"]
+[Round "2"]
+[White "Trainer"]
+[Black "Learner"]
+[Result "*"]
+
+1. c4 {سیاه باید مرکز را به چالش بکشد.} 1... e5 (1... c5)
+2. Nc3 2... Nf6 *

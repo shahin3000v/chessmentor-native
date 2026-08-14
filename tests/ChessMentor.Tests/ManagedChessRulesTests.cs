@@ -72,7 +72,14 @@ public sealed class ManagedChessRulesTests
         Assert.Equal(400L, _rules.Perft(FenPosition.Initial, 2, token));
         Assert.Equal(8902L, _rules.Perft(FenPosition.Initial, 3, token));
 
-        const string kiwipete = "r3k2r/p1ppqpb1/bn2pnp1/2pP4/1p2P3/2N2N2/PPQBBPPP/R3K2R w KQkq - 0 1";
+        // Canonical Kiwipete. Keep the fixture itself explicit because a visually
+        // similar middlegame FEN does not have the published 48/2,039 counts.
+        const string kiwipete = "r3k2r/p1ppqpb1/bn2pnp1/3PN3/1p2P3/2N2Q1p/PPPBBPPP/R3K2R w KQkq - 0 1";
+        var kiwipeteMoves = _rules.GetLegalMoves(kiwipete, token);
+        Assert.Contains(kiwipeteMoves, static move => move.Uci == "e1g1" && move.San == "O-O");
+        Assert.Contains(kiwipeteMoves, static move => move.Uci == "e1c1" && move.San == "O-O-O");
+        Assert.Contains(kiwipeteMoves, static move => move.Uci == "e5d7");
+        Assert.Contains(kiwipeteMoves, static move => move.Uci == "g2h3");
         Assert.Equal(48L, _rules.Perft(kiwipete, 1, token));
         Assert.Equal(2039L, _rules.Perft(kiwipete, 2, token));
     }

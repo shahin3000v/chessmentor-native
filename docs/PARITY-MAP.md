@@ -13,25 +13,25 @@ Status values: **Implemented Pn** has code and regression coverage in that phase
 | Comment enhancements | Embedded prose-move repair, click-safe SAN runs, sequential `پاسخ:` disclosure and custom font file | Pgn/Studio/Desktop | Implemented P2/P3 |
 | Move-linked audio | Teacher/public and user/private records, seek/delete/record and exact identity | Audio + Studio + ServerClient | Implemented P3 for Studio; Runtime P7 |
 | Studio | Append/delete/edit/translate/draft/publish/audio | `ChessMentor.Studio` | Implemented P3 acceptance candidate |
-| Viewer 2 | Distinct alignment/interaction semantics | Desktop shared viewer core | Planned P4 |
+| Viewer 2 | Distinct alignment/interaction semantics | Desktop shared viewer core | Skipped by explicit product decision; Viewer 1 remains canonical desktop viewer |
 | Translation providers | Server provider routing, failover, glossary/TM | Existing FastAPI | Server retained; native client implemented P3 |
 | Local translation cache | Offline hits, pending queue, exact usage mapping and reconnect retry | Translation + Persistence | Implemented P3 |
 | Translation DB editing | Virtualized search/edit, approved propagation and server TM update | Studio + Translation + FastAPI | Implemented P3 for admin Studio |
 | Translation contributions | Suggestions, approve/reject, permissions, ranks, multipliers and credits | Existing FastAPI + native admin/account UI | Server retained; client P8 |
 | Featured course image | JPEG/PNG/WebP validation, Draft persistence and publish payload | Studio + ServerClient | Implemented P3 |
 | Course marketplace | Categories, entitlement, credits, purchase | Existing FastAPI | Client P8 |
-| Course Builder | Sources/canvas/inspector/preview and revisions | CourseBuilder | Contracts foundation; P6 |
-| Play behavior | Persisted block auto-advance with cancellation/gating | CourseBuilder/Runtime | Planned P6/P7 |
+| Course Builder | Sources/canvas/inspector/preview and revisions | CourseBuilder | Native checkpoint implemented P6; advanced inspectors pending |
+| Play behavior | Persisted block auto-advance with cancellation/gating | CourseBuilder/Runtime | Persistence/editor implemented P6; runtime gating P7 |
 | Reveal / Wait modifiers | Persisted click/timed reveal and pause behavior with removable badges | CourseBuilder/Runtime | Planned P6/P7 |
 | Advanced exercises | Ranked Interactive Move, Sequence Challenge and typed Multiple Choice options | CourseBuilder/Runtime | Planned P6/P7 |
-| Stage authoring | Member containers, reorder/detach, `all-required` runtime composition | CourseBuilder/Runtime | Planned P6/P7 |
+| Stage authoring | Member containers, reorder/detach, `all-required` runtime composition | CourseBuilder/Runtime | Domain/compiler foundation P6; member UI and runtime P6/P7 |
 | Checkpoints and scoring | Pass thresholds, failure actions, immutable runs, attempt/hint-sensitive score events | CourseBuilder/Runtime + Persistence | Planned P6/P7 |
 | Builder/runtime audio | Up to eight attachments, microphone/URL, autoplay/play-once and wait/continue gating | Audio + CourseBuilder/Runtime + ServerClient | Studio recording P3; course flow P6/P7 |
 | Chess text tokenization | Mixed Persian text with isolated SAN/UCI/numbered LTR runs and Latin move numbers | Core presentation service + Desktop | Planned P6/P7 |
-| LEGO composition | Attached text compiled into one target stage | CourseRuntime compiler | Planned P7 |
+| LEGO composition | Attached text compiled into one target stage | CourseBuilder/Runtime compiler | Builder persistence/editor/preview implemented P6; learner runtime P7 |
 | Course Runtime | Blocks, answer privacy, gating, progression locks, fixed board panel, text window, replay/history and designer preview | CourseRuntime | Schema foundation; P7 |
-| Unified practice telemetry | Attempts, cards, reviews, contexts and per-course profiles shared by Runtime and MoveTrainer | MoveTrainer + CourseRuntime + Persistence | Planned P5/P7 |
-| MoveTrainer | Authoring, answers, hints, queues, deterministic FSRS, transpositions, daily limits, retry mistakes and stats | MoveTrainer | Contracts foundation; P5 |
+| Unified practice telemetry | Attempts, cards, reviews, contexts and per-course profiles shared by Runtime and MoveTrainer | MoveTrainer + CourseRuntime + Persistence | Implemented P5 for MoveTrainer; Runtime integration P7 |
+| MoveTrainer | Multi-game PGN authoring, primary/alternate/soft-fail answers, hints, wrong-piece attempts, due-first queues, deterministic FSRS, transpositions, side/daily limits, retry mistakes, persistence and stats | MoveTrainer + Desktop + Persistence | Implemented P5 acceptance candidate |
 | Audio | Synthesized navigation sound plus public/private move audio recording/playback | Audio | Viewer sound P2; Studio linked audio P3; Runtime P7 |
 | Account/auth | Session/login needed by Studio now; registration/OTP/recovery and account shell later | Existing FastAPI + secure Windows token vault | Session/login P3; full client P8 |
 | Contributions/admin | Suggestions, users, permissions, credits and moderation | Existing FastAPI | Client P8; TM editor itself P3 |

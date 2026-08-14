@@ -15,17 +15,27 @@ public partial class MainWindow : Window
 {
     private readonly MainWindowViewModel _viewModel;
     private readonly Action _openStudio;
+    private readonly Action _openMoveTrainer;
+    private readonly Action _openCourseBuilder;
 
-    public MainWindow(MainWindowViewModel viewModel, Action openStudio)
+    public MainWindow(
+        MainWindowViewModel viewModel,
+        Action openStudio,
+        Action openMoveTrainer,
+        Action openCourseBuilder)
     {
         InitializeComponent();
         _viewModel = viewModel;
         _openStudio = openStudio;
+        _openMoveTrainer = openMoveTrainer;
+        _openCourseBuilder = openCourseBuilder;
         DataContext = viewModel;
         Closed += (_, _) => _viewModel.Dispose();
     }
 
     private void OnOpenStudioClick(object sender, RoutedEventArgs e) => _openStudio();
+    private void OnOpenMoveTrainerClick(object sender, RoutedEventArgs e) => _openMoveTrainer();
+    private void OnOpenCourseBuilderClick(object sender, RoutedEventArgs e) => _openCourseBuilder();
 
     private void OnOpenSettingsClick(object sender, RoutedEventArgs e)
     {

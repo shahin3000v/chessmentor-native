@@ -4,7 +4,7 @@ namespace ChessMentor.Persistence;
 
 internal static class DatabaseMigrator
 {
-    internal const int CurrentVersion = 3;
+    internal const int CurrentVersion = 4;
 
     public static void Migrate(SqliteConnection connection)
     {
@@ -33,6 +33,12 @@ internal static class DatabaseMigrator
         {
             ApplyVersion3(connection, transaction);
             RecordVersion(connection, transaction, 3);
+        }
+
+        if (!applied.Contains(4))
+        {
+            ApplyVersion4(connection, transaction);
+            RecordVersion(connection, transaction, 4);
         }
 
         if (applied.Any(version => version > CurrentVersion))
@@ -266,6 +272,211 @@ internal static class DatabaseMigrator
 
             CREATE INDEX ix_translation_cache_usages_location
                 ON translation_cache_usages(course_id, game_id, node_id, comment_field);
+            """);
+
+    private static void ApplyVersion4(SqliteConnection connection, SqliteTransaction transaction) =>
+        Execute(connection, transaction, """
+            ALTER TABLE move_trainer_courses ADD COLUMN source_pgn TEXT NOT NULL DEFAULT '';
+
+            CREATE TABLE practice_attempts (
+                id TEXT PRIMARY KEY,
+                user_id TEXT NOT NULL,
+                course_id TEXT,
+                item_id TEXT,
+                block_id TEXT NOT NULL DEFAULT '',
+                block_type TEXT NOT NULL DEFAULT 'interactive-move',
+                source_kind TEXT NOT NULL CHECK(source_kind IN ('course_runtime','move_trainer')),
+                attempt_kind TEXT NOT NULL DEFAULT 'review',
+                card_key TEXT NOT NULL DEFAULT '',
+                start_fen TEXT NOT NULL,
+                result_fen TEXT NOT NULL DEFAULT '',
+                move_uci TEXT NOT NULL DEFAULT '',
+                move_san TEXT NOT NULL DEFAULT '',
+                selected_piece TEXT NOT NULL DEFAULT '',
+                from_square TEXT NOT NULL DEFAULT '',
+                to_square TEXT NOT NULL DEFAULT '',
+                input_method TEXT NOT NULL DEFAULT 'click',
+                hints_used INTEGER NOT NULL DEFAULT 0,
+                response_ms INTEGER NOT NULL DEFAULT 0,
+                outcome TEXT NOT NULL CHECK(outcome IN ('correct','soft_fail','wrong')),
+                is_correct INTEGER NOT NULL DEFAULT 0,
+                score INTEGER NOT NULL DEFAULT 0,
+                grade TEXT NOT NULL DEFAULT '',
+                feedback TEXT NOT NULL DEFAULT '',
+                payload_json TEXT NOT NULL DEFAULT '{}',
+                created_utc TEXT NOT NULL,
+                FOREIGN KEY(item_id) REFERENCES move_trainer_items(id) ON DELETE SET NULL
+            );
+
+            CREATE INDEX ix_practice_attempts_user_created
+                ON practice_attempts(user_id, created_utc DESC);
+            CREATE INDEX ix_practice_attempts_course
+                ON practice_attempts(user_id, course_id, created_utc DESC);
+            CREATE INDEX ix_practice_attempts_item
+                ON practice_attempts(user_id, item_id, created_utc DESC);
+
+            CREATE TABLE practice_cards (
+                id TEXT PRIMARY KEY,
+                user_id TEXT NOT NULL,
+                course_id TEXT,
+                item_id TEXT,
+                block_id TEXT NOT NULL DEFAULT '',
+                block_type TEXT NOT NULL DEFAULT 'interactive-move',
+                card_key TEXT NOT NULL,
+                prompt TEXT NOT NULL DEFAULT '',
+                fen TEXT NOT NULL,
+                orientation TEXT NOT NULL DEFAULT 'white',
+                expected_json TEXT NOT NULL DEFAULT '[]',
+                source_json TEXT NOT NULL DEFAULT '{}',
+                mistake_count INTEGER NOT NULL DEFAULT 0,
+                success_count INTEGER NOT NULL DEFAULT 0,
+                soft_fail_count INTEGER NOT NULL DEFAULT 0,
+                fsrs_state TEXT NOT NULL DEFAULT 'new',
+                fsrs_step INTEGER,
+                stability REAL NOT NULL DEFAULT 0,
+                difficulty REAL NOT NULL DEFAULT 5,
+                retrievability REAL NOT NULL DEFAULT 0,
+                due_utc TEXT NOT NULL,
+                last_review_utc TEXT,
+                last_source_kind TEXT NOT NULL DEFAULT 'move_trainer',
+                created_utc TEXT NOT NULL,
+                updated_utc TEXT NOT NULL,
+                UNIQUE(user_id, card_key),
+                FOREIGN KEY(item_id) REFERENCES move_trainer_items(id) ON DELETE SET NULL
+            );
+
+            CREATE INDEX ix_practice_cards_due
+                ON practice_cards(user_id, due_utc, updated_utc DESC);
+            CREATE INDEX ix_practice_cards_course
+                ON practice_cards(user_id, course_id, updated_utc DESC);
+
+            CREATE TABLE practice_reviews (
+                id TEXT PRIMARY KEY,
+                user_id TEXT NOT NULL,
+                card_id TEXT NOT NULL,
+                course_id TEXT,
+                source_kind TEXT NOT NULL CHECK(source_kind IN ('course_runtime','move_trainer')),
+                move_uci TEXT NOT NULL DEFAULT '',
+                move_san TEXT NOT NULL DEFAULT '',
+                outcome TEXT NOT NULL CHECK(outcome IN ('correct','soft_fail','wrong')),
+                requested_rating TEXT NOT NULL,
+                applied_rating TEXT NOT NULL,
+                response_ms INTEGER NOT NULL DEFAULT 0,
+                fsrs_before_json TEXT NOT NULL DEFAULT '{}',
+                fsrs_after_json TEXT NOT NULL DEFAULT '{}',
+                review_log_json TEXT NOT NULL DEFAULT '{}',
+                created_utc TEXT NOT NULL,
+                FOREIGN KEY(card_id) REFERENCES practice_cards(id) ON DELETE CASCADE
+            );
+
+            CREATE INDEX ix_practice_reviews_card
+                ON practice_reviews(card_id, created_utc DESC);
+
+            CREATE TABLE practice_attempt_contexts (
+                attempt_id TEXT PRIMARY KEY,
+                block_snapshot_json TEXT NOT NULL DEFAULT '{}',
+                input_method TEXT NOT NULL DEFAULT 'click',
+                hints_used INTEGER NOT NULL DEFAULT 0,
+                client_data_json TEXT NOT NULL DEFAULT '{}',
+                created_utc TEXT NOT NULL,
+                FOREIGN KEY(attempt_id) REFERENCES practice_attempts(id) ON DELETE CASCADE
+            );
+
+            CREATE TABLE move_trainer_profiles (
+                user_id TEXT NOT NULL,
+                course_id TEXT NOT NULL,
+                profile_version INTEGER NOT NULL DEFAULT 1,
+                first_course_data_utc TEXT,
+                last_course_data_utc TEXT,
+                first_trainer_data_utc TEXT,
+                last_trainer_data_utc TEXT,
+                course_attempts INTEGER NOT NULL DEFAULT 0,
+                trainer_attempts INTEGER NOT NULL DEFAULT 0,
+                total_attempts INTEGER NOT NULL DEFAULT 0,
+                last_source_kind TEXT NOT NULL DEFAULT 'move_trainer',
+                metadata_json TEXT NOT NULL DEFAULT '{}',
+                created_utc TEXT NOT NULL,
+                updated_utc TEXT NOT NULL,
+                PRIMARY KEY(user_id, course_id)
+            );
+
+            CREATE INDEX ix_move_trainer_profiles_user
+                ON move_trainer_profiles(user_id, updated_utc DESC, course_id);
+
+            CREATE TABLE move_trainer_sessions (
+                id TEXT PRIMARY KEY,
+                user_id TEXT NOT NULL,
+                course_id TEXT NOT NULL,
+                mode TEXT NOT NULL DEFAULT 'due',
+                status TEXT NOT NULL DEFAULT 'active',
+                current_index INTEGER NOT NULL DEFAULT 0,
+                started_utc TEXT NOT NULL,
+                completed_utc TEXT,
+                updated_utc TEXT NOT NULL,
+                FOREIGN KEY(course_id) REFERENCES move_trainer_courses(id) ON DELETE CASCADE
+            );
+
+            CREATE INDEX ix_move_trainer_sessions_active
+                ON move_trainer_sessions(user_id, course_id, status, updated_utc DESC);
+
+            CREATE TABLE move_trainer_session_items (
+                session_id TEXT NOT NULL,
+                ordinal INTEGER NOT NULL,
+                item_id TEXT NOT NULL,
+                status TEXT NOT NULL DEFAULT 'pending',
+                attempt_count INTEGER NOT NULL DEFAULT 0,
+                last_outcome TEXT,
+                had_mistake INTEGER NOT NULL DEFAULT 0,
+                PRIMARY KEY(session_id, ordinal),
+                FOREIGN KEY(session_id) REFERENCES move_trainer_sessions(id) ON DELETE CASCADE,
+                FOREIGN KEY(item_id) REFERENCES move_trainer_items(id) ON DELETE CASCADE
+            );
+
+            CREATE TABLE move_trainer_migration_state (
+                source_kind TEXT NOT NULL,
+                source_id TEXT NOT NULL,
+                target_id TEXT NOT NULL,
+                migrated_utc TEXT NOT NULL,
+                PRIMARY KEY(source_kind, source_id)
+            );
+
+            INSERT OR IGNORE INTO practice_cards(
+                id, user_id, course_id, item_id, block_id, card_key, prompt, fen,
+                orientation, expected_json, mistake_count, success_count,
+                fsrs_state, stability, difficulty, retrievability, due_utc,
+                last_review_utc, created_utc, updated_utc)
+            SELECT
+                'legacy-card:' || fs.user_id || ':' || fs.item_id,
+                fs.user_id,
+                item.course_id,
+                fs.item_id,
+                fs.item_id,
+                'legacy:' || item.course_id || ':' || fs.item_id,
+                'حرکت صحیح را پیدا کنید.',
+                item.fen,
+                CASE WHEN instr(item.fen, ' b ') > 0 THEN 'black' ELSE 'white' END,
+                item.answer_json,
+                fs.lapses,
+                CASE WHEN fs.repetitions > fs.lapses THEN fs.repetitions - fs.lapses ELSE 0 END,
+                CASE WHEN fs.repetitions > 0 THEN 'review' ELSE 'new' END,
+                fs.stability,
+                fs.difficulty,
+                0,
+                fs.due_utc,
+                fs.last_review_utc,
+                COALESCE(fs.last_review_utc, fs.due_utc),
+                COALESCE(fs.last_review_utc, fs.due_utc)
+            FROM fsrs_state fs
+            JOIN move_trainer_items item ON item.id = fs.item_id;
+
+            INSERT OR IGNORE INTO move_trainer_migration_state(
+                source_kind, source_id, target_id, migrated_utc)
+            SELECT
+                'legacy-fsrs',
+                fs.user_id || ':' || fs.item_id,
+                'legacy-card:' || fs.user_id || ':' || fs.item_id,
+                COALESCE(fs.last_review_utc, fs.due_utc)
+            FROM fsrs_state fs;
             """);
 
     private static void Execute(SqliteConnection connection, SqliteTransaction transaction, string sql)

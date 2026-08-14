@@ -17,7 +17,11 @@ public partial class App : Application
     private ViewerDocumentLoader? _documentLoader;
     private ManagedChessRules? _chessRules;
     private StudioWindow? _studioWindow;
+    private MoveTrainerWindow? _moveTrainerWindow;
+    private CourseBuilderWindow? _courseBuilderWindow;
     private bool _studioOpening;
+    private bool _moveTrainerOpening;
+    private bool _courseBuilderOpening;
 
     public App()
     {
@@ -45,10 +49,143 @@ public partial class App : Application
             _documentLoader,
             _chessRules,
             new NativeMoveSoundService());
-        var window = new MainWindow(viewModel, OpenStudio);
+        var window = new MainWindow(viewModel, OpenStudio, OpenMoveTrainer, OpenCourseBuilder);
         MainWindow = window;
         window.Show();
         await viewModel.InitializeAsync().ConfigureAwait(true);
+    }
+
+    private async void OpenCourseBuilder()
+    {
+        if (_courseBuilderWindow is { IsVisible: true })
+        {
+            if (_courseBuilderWindow.WindowState == WindowState.Minimized)
+            {
+                _courseBuilderWindow.WindowState = WindowState.Normal;
+            }
+
+            _courseBuilderWindow.Activate();
+            return;
+        }
+
+        if (_courseBuilderOpening || _database is null || _settingsRepository is null || _documentLoader is null)
+        {
+            return;
+        }
+
+        _courseBuilderOpening = true;
+        CourseBuilderWindowViewModel? viewModel = null;
+        CourseBuilderWindow? window = null;
+        try
+        {
+            await Dispatcher.Yield(DispatcherPriority.ContextIdle);
+            viewModel = new CourseBuilderWindowViewModel(_database, _settingsRepository, _documentLoader);
+            window = new CourseBuilderWindow(viewModel);
+            if (MainWindow is { } owner)
+            {
+                window.Owner = owner;
+            }
+
+            _courseBuilderWindow = window;
+            window.Closed += (_, _) => _courseBuilderWindow = null;
+            window.Show();
+            await Dispatcher.Yield(DispatcherPriority.ContextIdle);
+            if (window.IsVisible)
+            {
+                await viewModel.InitializeAsync().ConfigureAwait(true);
+            }
+        }
+        catch (Exception exception)
+        {
+            DesktopDiagnosticLog.Write("Open Course Builder", exception);
+            if (ReferenceEquals(_courseBuilderWindow, window))
+            {
+                _courseBuilderWindow = null;
+            }
+
+            window?.Close();
+            viewModel?.Dispose();
+            MessageBox.Show(
+                $"Course Builder باز نشد.\n\n{exception.Message}\n\nلاگ کامل:\n{DesktopDiagnosticLog.FilePath}",
+                "خطای Course Builder",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error,
+                MessageBoxResult.OK,
+                MessageBoxOptions.RightAlign | MessageBoxOptions.RtlReading);
+        }
+        finally
+        {
+            _courseBuilderOpening = false;
+        }
+    }
+
+    private async void OpenMoveTrainer()
+    {
+        if (_moveTrainerWindow is { IsVisible: true })
+        {
+            if (_moveTrainerWindow.WindowState == WindowState.Minimized)
+            {
+                _moveTrainerWindow.WindowState = WindowState.Normal;
+            }
+
+            _moveTrainerWindow.Activate();
+            return;
+        }
+
+        if (_moveTrainerOpening || _database is null || _settingsRepository is null ||
+            _documentLoader is null || _chessRules is null)
+        {
+            return;
+        }
+
+        _moveTrainerOpening = true;
+        MoveTrainerWindowViewModel? viewModel = null;
+        MoveTrainerWindow? window = null;
+        try
+        {
+            await Dispatcher.Yield(DispatcherPriority.ContextIdle);
+            viewModel = new MoveTrainerWindowViewModel(
+                _database,
+                _settingsRepository,
+                _documentLoader,
+                _chessRules);
+            window = new MoveTrainerWindow(viewModel);
+            if (MainWindow is { } owner)
+            {
+                window.Owner = owner;
+            }
+
+            _moveTrainerWindow = window;
+            window.Closed += (_, _) => _moveTrainerWindow = null;
+            window.Show();
+            await Dispatcher.Yield(DispatcherPriority.ContextIdle);
+            if (window.IsVisible)
+            {
+                await viewModel.InitializeAsync().ConfigureAwait(true);
+            }
+        }
+        catch (Exception exception)
+        {
+            DesktopDiagnosticLog.Write("Open MoveTrainer", exception);
+            if (ReferenceEquals(_moveTrainerWindow, window))
+            {
+                _moveTrainerWindow = null;
+            }
+
+            window?.Close();
+            viewModel?.Dispose();
+            MessageBox.Show(
+                $"MoveTrainer باز نشد.\n\n{exception.Message}\n\nلاگ کامل:\n{DesktopDiagnosticLog.FilePath}",
+                "خطای MoveTrainer",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error,
+                MessageBoxResult.OK,
+                MessageBoxOptions.RightAlign | MessageBoxOptions.RtlReading);
+        }
+        finally
+        {
+            _moveTrainerOpening = false;
+        }
     }
 
     private async void OpenStudio()

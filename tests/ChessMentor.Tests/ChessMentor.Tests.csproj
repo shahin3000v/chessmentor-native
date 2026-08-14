@@ -17,6 +17,7 @@
     <ProjectReference Include="..\..\src\ChessMentor.Studio\ChessMentor.Studio.csproj" />
     <ProjectReference Include="..\..\src\ChessMentor.CourseBuilder\ChessMentor.CourseBuilder.csproj" />
     <ProjectReference Include="..\..\src\ChessMentor.CourseRuntime\ChessMentor.CourseRuntime.csproj" />
+    <ProjectReference Include="..\..\src\ChessMentor.MoveTrainer\ChessMentor.MoveTrainer.csproj" />
     <ProjectReference Include="..\..\src\ChessMentor.Audio\ChessMentor.Audio.csproj" />
   </ItemGroup>
 </Project>

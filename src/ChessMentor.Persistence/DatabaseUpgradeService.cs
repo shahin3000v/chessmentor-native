@@ -107,14 +107,15 @@ public sealed class DatabaseUpgradeService(AppDatabase targetDatabase)
             """),
         new("move_trainer_courses", """
             INSERT INTO move_trainer_courses(
-                id, source_id, title, settings_json, updated_utc)
-            SELECT id, source_id, title, settings_json, updated_utc
+                id, source_id, title, settings_json, updated_utc, source_pgn)
+            SELECT id, source_id, title, settings_json, updated_utc, source_pgn
             FROM incoming.move_trainer_courses WHERE TRUE
             ON CONFLICT(id) DO UPDATE SET
                 source_id = excluded.source_id,
                 title = excluded.title,
                 settings_json = excluded.settings_json,
-                updated_utc = excluded.updated_utc
+                updated_utc = excluded.updated_utc,
+                source_pgn = excluded.source_pgn
             WHERE excluded.updated_utc > move_trainer_courses.updated_utc;
             """),
         new("course_builder_revisions", """
@@ -166,6 +167,127 @@ public sealed class DatabaseUpgradeService(AppDatabase targetDatabase)
             WHERE COALESCE(excluded.last_review_utc, '') > COALESCE(fsrs_state.last_review_utc, '')
                OR (excluded.last_review_utc IS NULL AND fsrs_state.last_review_utc IS NULL
                    AND excluded.repetitions > fsrs_state.repetitions);
+            """),
+        new("practice_cards", """
+            INSERT INTO practice_cards(
+                id, user_id, course_id, item_id, block_id, block_type, card_key,
+                prompt, fen, orientation, expected_json, source_json,
+                mistake_count, success_count, soft_fail_count, fsrs_state,
+                fsrs_step, stability, difficulty, retrievability, due_utc,
+                last_review_utc, last_source_kind, created_utc, updated_utc)
+            SELECT id, user_id, course_id, item_id, block_id, block_type, card_key,
+                   prompt, fen, orientation, expected_json, source_json,
+                   mistake_count, success_count, soft_fail_count, fsrs_state,
+                   fsrs_step, stability, difficulty, retrievability, due_utc,
+                   last_review_utc, last_source_kind, created_utc, updated_utc
+            FROM incoming.practice_cards WHERE TRUE
+            ON CONFLICT(id) DO UPDATE SET
+                course_id = excluded.course_id,
+                item_id = excluded.item_id,
+                block_id = excluded.block_id,
+                block_type = excluded.block_type,
+                card_key = excluded.card_key,
+                prompt = excluded.prompt,
+                fen = excluded.fen,
+                orientation = excluded.orientation,
+                expected_json = excluded.expected_json,
+                source_json = excluded.source_json,
+                mistake_count = excluded.mistake_count,
+                success_count = excluded.success_count,
+                soft_fail_count = excluded.soft_fail_count,
+                fsrs_state = excluded.fsrs_state,
+                fsrs_step = excluded.fsrs_step,
+                stability = excluded.stability,
+                difficulty = excluded.difficulty,
+                retrievability = excluded.retrievability,
+                due_utc = excluded.due_utc,
+                last_review_utc = excluded.last_review_utc,
+                last_source_kind = excluded.last_source_kind,
+                updated_utc = excluded.updated_utc
+            WHERE excluded.updated_utc > practice_cards.updated_utc;
+            """),
+        new("practice_attempts", """
+            INSERT OR IGNORE INTO practice_attempts(
+                id, user_id, course_id, item_id, block_id, block_type,
+                source_kind, attempt_kind, card_key, start_fen, result_fen,
+                move_uci, move_san, selected_piece, from_square, to_square,
+                input_method, hints_used, response_ms, outcome, is_correct,
+                score, grade, feedback, payload_json, created_utc)
+            SELECT id, user_id, course_id, item_id, block_id, block_type,
+                   source_kind, attempt_kind, card_key, start_fen, result_fen,
+                   move_uci, move_san, selected_piece, from_square, to_square,
+                   input_method, hints_used, response_ms, outcome, is_correct,
+                   score, grade, feedback, payload_json, created_utc
+            FROM incoming.practice_attempts;
+            """),
+        new("practice_reviews", """
+            INSERT OR IGNORE INTO practice_reviews(
+                id, user_id, card_id, course_id, source_kind, move_uci,
+                move_san, outcome, requested_rating, applied_rating,
+                response_ms, fsrs_before_json, fsrs_after_json,
+                review_log_json, created_utc)
+            SELECT id, user_id, card_id, course_id, source_kind, move_uci,
+                   move_san, outcome, requested_rating, applied_rating,
+                   response_ms, fsrs_before_json, fsrs_after_json,
+                   review_log_json, created_utc
+            FROM incoming.practice_reviews;
+            """),
+        new("practice_attempt_contexts", """
+            INSERT OR IGNORE INTO practice_attempt_contexts(
+                attempt_id, block_snapshot_json, input_method, hints_used,
+                client_data_json, created_utc)
+            SELECT attempt_id, block_snapshot_json, input_method, hints_used,
+                   client_data_json, created_utc
+            FROM incoming.practice_attempt_contexts;
+            """),
+        new("move_trainer_profiles", """
+            INSERT INTO move_trainer_profiles(
+                user_id, course_id, profile_version, first_course_data_utc,
+                last_course_data_utc, first_trainer_data_utc,
+                last_trainer_data_utc, course_attempts, trainer_attempts,
+                total_attempts, last_source_kind, metadata_json,
+                created_utc, updated_utc)
+            SELECT user_id, course_id, profile_version, first_course_data_utc,
+                   last_course_data_utc, first_trainer_data_utc,
+                   last_trainer_data_utc, course_attempts, trainer_attempts,
+                   total_attempts, last_source_kind, metadata_json,
+                   created_utc, updated_utc
+            FROM incoming.move_trainer_profiles WHERE TRUE
+            ON CONFLICT(user_id, course_id) DO UPDATE SET
+                profile_version = excluded.profile_version,
+                first_course_data_utc = excluded.first_course_data_utc,
+                last_course_data_utc = excluded.last_course_data_utc,
+                first_trainer_data_utc = excluded.first_trainer_data_utc,
+                last_trainer_data_utc = excluded.last_trainer_data_utc,
+                course_attempts = excluded.course_attempts,
+                trainer_attempts = excluded.trainer_attempts,
+                total_attempts = excluded.total_attempts,
+                last_source_kind = excluded.last_source_kind,
+                metadata_json = excluded.metadata_json,
+                updated_utc = excluded.updated_utc
+            WHERE excluded.updated_utc > move_trainer_profiles.updated_utc;
+            """),
+        new("move_trainer_sessions", """
+            INSERT OR IGNORE INTO move_trainer_sessions(
+                id, user_id, course_id, mode, status, current_index,
+                started_utc, completed_utc, updated_utc)
+            SELECT id, user_id, course_id, mode, status, current_index,
+                   started_utc, completed_utc, updated_utc
+            FROM incoming.move_trainer_sessions;
+            """),
+        new("move_trainer_session_items", """
+            INSERT OR IGNORE INTO move_trainer_session_items(
+                session_id, ordinal, item_id, status, attempt_count, last_outcome,
+                had_mistake)
+            SELECT session_id, ordinal, item_id, status, attempt_count, last_outcome,
+                   had_mistake
+            FROM incoming.move_trainer_session_items;
+            """),
+        new("move_trainer_migration_state", """
+            INSERT OR IGNORE INTO move_trainer_migration_state(
+                source_kind, source_id, target_id, migrated_utc)
+            SELECT source_kind, source_id, target_id, migrated_utc
+            FROM incoming.move_trainer_migration_state;
             """),
         new("course_runtime_current_progress", """
             INSERT INTO course_runtime_current_progress(

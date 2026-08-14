@@ -40,6 +40,14 @@ public sealed class PersistenceTests
         Assert.Contains("move_trainer_courses", tables);
         Assert.Contains("move_trainer_items", tables);
         Assert.Contains("fsrs_state", tables);
+        Assert.Contains("practice_attempts", tables);
+        Assert.Contains("practice_cards", tables);
+        Assert.Contains("practice_reviews", tables);
+        Assert.Contains("practice_attempt_contexts", tables);
+        Assert.Contains("move_trainer_profiles", tables);
+        Assert.Contains("move_trainer_sessions", tables);
+        Assert.Contains("move_trainer_session_items", tables);
+        Assert.Contains("move_trainer_migration_state", tables);
         Assert.Contains("audio_metadata", tables);
         Assert.Contains("sync_queue", tables);
         Assert.Contains("sync_revisions", tables);
@@ -262,9 +270,10 @@ public sealed class PersistenceTests
                             'attempt-1', 'course-1', 'user-1',
                             '2026-01-01T00:00:00.0000000+00:00',
                             '2026-01-01T00:05:00.0000000+00:00', '{}');
-                        INSERT INTO move_trainer_courses VALUES(
-                            'trainer-1', 'source-1', 'trainer', '{}',
-                            '2026-01-01T00:00:00.0000000+00:00');
+                        INSERT INTO move_trainer_courses(
+                            id, source_id, title, settings_json, updated_utc, source_pgn)
+                        VALUES('trainer-1', 'source-1', 'trainer', '{}',
+                            '2026-01-01T00:00:00.0000000+00:00', '1. e4 *');
                         INSERT INTO move_trainer_items VALUES(
                             'item-1', 'trainer-1', 'game-1', 'node-1',
                             '8/8/8/8/8/8/8/K6k w - - 0 1', '{}', 'position-1',
@@ -309,7 +318,7 @@ public sealed class PersistenceTests
 
         var result = await new DatabaseUpgradeService(target).ImportAsync(sourcePath, cancellationToken);
 
-        Assert.Equal(3, result.SourceSchemaVersion);
+        Assert.Equal(4, result.SourceSchemaVersion);
         Assert.Equal(16L, result.SourceRows);
         Assert.Equal(15L, result.ImportedOrUpdatedRows);
         var actual = await target.ExecuteAsync(
@@ -331,7 +340,23 @@ public sealed class PersistenceTests
             },
             cancellationToken);
 
-        Assert.All(actual.Counts.Values, static count => Assert.Equal(1L, count));
+        var phaseFourTables = new[]
+        {
+            "practice_cards",
+            "practice_attempts",
+            "practice_reviews",
+            "practice_attempt_contexts",
+            "move_trainer_profiles",
+            "move_trainer_sessions",
+            "move_trainer_session_items",
+            "move_trainer_migration_state",
+        };
+        Assert.All(
+            actual.Counts.Where(entry => !phaseFourTables.Contains(entry.Key, StringComparer.Ordinal)),
+            static entry => Assert.Equal(1L, entry.Value));
+        Assert.All(
+            phaseFourTables,
+            table => Assert.Equal(0L, actual.Counts[table]));
         Assert.Equal("newer target", actual.Title);
         Assert.Equal("1. d4 *", actual.Pgn);
     }
