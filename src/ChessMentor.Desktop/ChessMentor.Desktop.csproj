@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <PlatformTarget>x64</PlatformTarget>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AssemblyName>ChessMentor.Desktop</AssemblyName>
+    <RootNamespace>ChessMentor.Desktop</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ChessMentor.Core\ChessMentor.Core.csproj" />
+    <ProjectReference Include="..\ChessMentor.Chess\ChessMentor.Chess.csproj" />
+    <ProjectReference Include="..\ChessMentor.Pgn\ChessMentor.Pgn.csproj" />
+    <ProjectReference Include="..\ChessMentor.Viewer\ChessMentor.Viewer.csproj" />
+    <ProjectReference Include="..\ChessMentor.Persistence\ChessMentor.Persistence.csproj" />
+    <ProjectReference Include="..\ChessMentor.ServerClient\ChessMentor.ServerClient.csproj" />
+    <ProjectReference Include="..\ChessMentor.Translation\ChessMentor.Translation.csproj" />
+    <ProjectReference Include="..\ChessMentor.Studio\ChessMentor.Studio.csproj" />
+    <ProjectReference Include="..\ChessMentor.CourseBuilder\ChessMentor.CourseBuilder.csproj" />
+    <ProjectReference Include="..\ChessMentor.CourseRuntime\ChessMentor.CourseRuntime.csproj" />
+    <ProjectReference Include="..\ChessMentor.MoveTrainer\ChessMentor.MoveTrainer.csproj" />
+    <ProjectReference Include="..\ChessMentor.Audio\ChessMentor.Audio.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Assets\Pieces\*.png" />
+    <Resource Include="Assets\Fonts\*.ttf" />
+  </ItemGroup>
+</Project>

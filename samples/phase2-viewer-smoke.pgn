@@ -1,0 +1,21 @@
+[Event "Phase 2 nested variation smoke test"]
+[Site "ChessMentor Desktop"]
+[Date "2026.08.13"]
+[Round "1"]
+[White "Viewer One"]
+[Black "Native Board"]
+[Result "1-0"]
+
+{توضیح شروع بازی با عدد لاتین 10} 1. e4 $1 {حرکت اصلی} (1. d4 d5 (1... Nf6 {شاخه تو در تو}) 2. c4) 1... e5 2. Nf3 Nc6 3. Bb5 a6 4. Ba4 Nf6 5. O-O Be7 1-0
+
+[Event "Phase 2 black-to-move numbering"]
+[Site "ChessMentor Desktop"]
+[Date "2026.08.13"]
+[Round "2"]
+[White "Black Number"]
+[Black "FEN Start"]
+[Result "*"]
+[SetUp "1"]
+[FEN "r1bqkbnr/pppp1ppp/2n5/4p3/4P3/5N2/PPPP1PPP/RNBQKB1R b KQkq - 2 2"]
+
+2... Nf6 {شماره حرکت سیاه باید به شکل 2... دیده شود.} 3. d4 exd4 *

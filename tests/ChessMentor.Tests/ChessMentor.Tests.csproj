@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <OutputType>Exe</OutputType>
+    <IsTestProject>true</IsTestProject>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="xunit.v3" />
+    <ProjectReference Include="..\..\src\ChessMentor.Core\ChessMentor.Core.csproj" />
+    <ProjectReference Include="..\..\src\ChessMentor.Chess\ChessMentor.Chess.csproj" />
+    <ProjectReference Include="..\..\src\ChessMentor.Pgn\ChessMentor.Pgn.csproj" />
+    <ProjectReference Include="..\..\src\ChessMentor.Viewer\ChessMentor.Viewer.csproj" />
+    <ProjectReference Include="..\..\src\ChessMentor.Persistence\ChessMentor.Persistence.csproj" />
+    <ProjectReference Include="..\..\src\ChessMentor.ServerClient\ChessMentor.ServerClient.csproj" />
+    <ProjectReference Include="..\..\src\ChessMentor.Translation\ChessMentor.Translation.csproj" />
+    <ProjectReference Include="..\..\src\ChessMentor.Studio\ChessMentor.Studio.csproj" />
+    <ProjectReference Include="..\..\src\ChessMentor.CourseBuilder\ChessMentor.CourseBuilder.csproj" />
+    <ProjectReference Include="..\..\src\ChessMentor.CourseRuntime\ChessMentor.CourseRuntime.csproj" />
+    <ProjectReference Include="..\..\src\ChessMentor.Audio\ChessMentor.Audio.csproj" />
+  </ItemGroup>
+</Project>

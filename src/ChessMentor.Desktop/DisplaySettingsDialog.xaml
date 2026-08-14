@@ -1,0 +1,154 @@
+<Window x:Class="ChessMentor.Desktop.DisplaySettingsDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:board="clr-namespace:ChessMentor.Desktop.Controls"
+        Title="تنظیمات نمایش"
+        Width="520"
+        Height="610"
+        MinWidth="460"
+        MinHeight="560"
+        MaxHeight="760"
+        WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False"
+        ResizeMode="CanResizeWithGrip"
+        FlowDirection="RightToLeft">
+    <Window.Resources>
+        <Style x:Key="SectionBorder" TargetType="Border">
+            <Setter Property="Background" Value="White" />
+            <Setter Property="BorderBrush" Value="#FFE4E4E7" />
+            <Setter Property="BorderThickness" Value="1" />
+            <Setter Property="CornerRadius" Value="9" />
+            <Setter Property="Padding" Value="14" />
+            <Setter Property="Margin" Value="0,0,0,10" />
+        </Style>
+        <Style x:Key="FieldLabel" TargetType="TextBlock">
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Foreground" Value="#FF3F3F46" />
+            <Setter Property="Margin" Value="0,0,0,4" />
+        </Style>
+        <Style x:Key="SettingsCombo" TargetType="ComboBox">
+            <Setter Property="MinHeight" Value="34" />
+            <Setter Property="Margin" Value="0,0,0,10" />
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="14">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="2,0,2,12">
+            <TextBlock Text="تنظیمات نمایش"
+                       FontSize="21"
+                       FontWeight="SemiBold" />
+            <TextBlock Text="تغییرات همان لحظه روی همهٔ بخش‌های برنامه اعمال و ذخیره می‌شوند."
+                       Foreground="#FF71717A"
+                       Margin="0,4,0,0" />
+        </StackPanel>
+
+        <ScrollViewer Grid.Row="1"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled">
+            <StackPanel Margin="2,0,6,0">
+                <Border x:Name="MoveListSection" Style="{StaticResource SectionBorder}">
+                    <StackPanel>
+                        <TextBlock Text="پنل حرکات"
+                                   FontSize="16"
+                                   FontWeight="SemiBold"
+                                   Margin="0,0,0,10" />
+                        <TextBlock Text="نحوهٔ نمایش پنل حرکات" Style="{StaticResource FieldLabel}" />
+                        <ComboBox ItemsSource="{Binding MoveDisplayModeOptions}"
+                                  SelectedItem="{Binding SelectedMoveDisplayMode}"
+                                  DisplayMemberPath="Label"
+                                  Style="{StaticResource SettingsCombo}" />
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource SectionBorder}">
+                    <StackPanel>
+                        <TextBlock Text="برد و حرکات"
+                                   FontSize="16"
+                                   FontWeight="SemiBold"
+                                   Margin="0,0,0,10" />
+                        <TextBlock Text="نمایش حرکات" Style="{StaticResource FieldLabel}" />
+                        <ComboBox ItemsSource="{Binding NotationModeOptions}"
+                                  SelectedItem="{Binding SelectedNotationMode}"
+                                  DisplayMemberPath="Label"
+                                  FlowDirection="LeftToRight"
+                                  Style="{StaticResource SettingsCombo}" />
+                        <TextBlock Text="پوستهٔ برد" Style="{StaticResource FieldLabel}" />
+                        <ComboBox ItemsSource="{Binding Skins}"
+                                  SelectedItem="{Binding SelectedSkin}"
+                                  FlowDirection="LeftToRight"
+                                  Style="{StaticResource SettingsCombo}" />
+                        <WrapPanel FlowDirection="RightToLeft">
+                            <CheckBox Content="نمایش مختصات"
+                                      IsChecked="{Binding ShowCoordinates}"
+                                      Margin="0,5,0,5" />
+                            <CheckBox Content="صدای حرکت"
+                                      IsChecked="{Binding MoveSoundEnabled}"
+                                      Margin="28,5,0,5" />
+                        </WrapPanel>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource SectionBorder}">
+                    <StackPanel>
+                        <TextBlock Text="توضیحات فارسی"
+                                   FontSize="16"
+                                   FontWeight="SemiBold"
+                                   Margin="0,0,0,10" />
+                        <TextBlock Text="فونت توضیحات" Style="{StaticResource FieldLabel}" />
+                        <ComboBox ItemsSource="{Binding CommentFontOptions}"
+                                  SelectedValue="{Binding SelectedBuiltInCommentFontFamily, Mode=TwoWay}"
+                                  SelectedValuePath="FamilyName"
+                                  DisplayMemberPath="Label"
+                                  Style="{StaticResource SettingsCombo}" />
+                        <TextBlock Text="اندازهٔ فونت" Style="{StaticResource FieldLabel}" />
+                        <ComboBox ItemsSource="{Binding CommentFontSizes}"
+                                  SelectedItem="{Binding CommentFontSize}"
+                                  FlowDirection="LeftToRight"
+                                  Style="{StaticResource SettingsCombo}" />
+                        <Border Background="#FFFAFAFA"
+                                BorderBrush="#FFE4E4E7"
+                                BorderThickness="1"
+                                CornerRadius="6"
+                                Padding="10"
+                                Margin="0,2,0,10">
+                            <board:MixedDirectionTextBlock MixedText="نمونهٔ توضیح فارسی: بعد از 12...Nf6 سفید مرکز را کنترل می‌کند."
+                                                           FlowDirection="LeftToRight"
+                                                           TextAlignment="Right"
+                                                           TextWrapping="Wrap"
+                                                           FontFamily="{Binding CommentFontFamily}"
+                                                           FontSize="{Binding CommentFontSize}" />
+                        </Border>
+                        <StackPanel Orientation="Horizontal"
+                                    FlowDirection="RightToLeft"
+                                    Margin="0,0,0,6">
+                            <TextBlock Text="فونت فعال: " Foreground="#FF71717A" />
+                            <TextBlock Text="{Binding CommentFontLabel}" Foreground="#FF71717A" />
+                        </StackPanel>
+                        <WrapPanel FlowDirection="RightToLeft">
+                            <Button Content="انتخاب فایل فونت…"
+                                    Click="OnChooseCommentFontClick" />
+                            <Button Content="بازگشت به ایران یکان"
+                                    Click="OnResetCommentFontClick" />
+                        </WrapPanel>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
+        </ScrollViewer>
+
+        <Border Grid.Row="2"
+                BorderBrush="#FFE4E4E7"
+                BorderThickness="0,1,0,0"
+                Padding="0,10,0,0">
+            <Button Content="بستن"
+                    IsCancel="True"
+                    MinWidth="110"
+                    HorizontalAlignment="Left" />
+        </Border>
+    </Grid>
+</Window>

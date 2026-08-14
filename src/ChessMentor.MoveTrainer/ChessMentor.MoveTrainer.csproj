@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><TargetFramework>net10.0</TargetFramework></PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\ChessMentor.Core\ChessMentor.Core.csproj" />
+    <ProjectReference Include="..\ChessMentor.Chess\ChessMentor.Chess.csproj" />
+    <ProjectReference Include="..\ChessMentor.Pgn\ChessMentor.Pgn.csproj" />
+    <ProjectReference Include="..\ChessMentor.Persistence\ChessMentor.Persistence.csproj" />
+    <ProjectReference Include="..\ChessMentor.ServerClient\ChessMentor.ServerClient.csproj" />
+  </ItemGroup>
+</Project>

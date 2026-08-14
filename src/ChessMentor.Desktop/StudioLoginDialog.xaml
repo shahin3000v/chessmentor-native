@@ -1,0 +1,31 @@
+<Window x:Class="ChessMentor.Desktop.StudioLoginDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="ورود به ChessMentor Server"
+        Width="390"
+        Height="245"
+        ResizeMode="NoResize"
+        WindowStartupLocation="CenterOwner"
+        FlowDirection="RightToLeft"
+        ShowInTaskbar="False">
+    <Grid Margin="18">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <TextBlock Text="ورود با نشست فعلی FastAPI" FontSize="17" FontWeight="SemiBold" />
+        <TextBlock Grid.Row="1" Text="نام کاربری، موبایل یا ایمیل" Margin="0,12,0,3" />
+        <TextBox x:Name="IdentifierBox" Grid.Row="2" FlowDirection="LeftToRight" HorizontalContentAlignment="Left" />
+        <StackPanel Grid.Row="3">
+            <TextBlock Text="رمز عبور" Margin="0,10,0,3" />
+            <PasswordBox x:Name="PasswordBox" FlowDirection="LeftToRight" />
+        </StackPanel>
+        <StackPanel Grid.Row="4" Orientation="Horizontal" HorizontalAlignment="Left" FlowDirection="LeftToRight">
+            <Button Content="Cancel" IsCancel="True" />
+            <Button Content="Login" IsDefault="True" Click="OnLoginClick" />
+        </StackPanel>
+    </Grid>
+</Window>

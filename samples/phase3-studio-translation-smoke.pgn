@@ -1,0 +1,25 @@
+[Event "Phase 3 Studio main game"]
+[Site "ChessMentor Native"]
+[Date "2026.08.13"]
+[Round "1"]
+[White "Studio"]
+[Black "Translation"]
+[Result "*"]
+
+{White should control the center. پاسخ: The central pawns restrict Black's pieces.}
+1. e4 {White keeps the initiative.} e5
+(1... c5 !? {Black challenges the center immediately.}
+  (1... e6 $5 {The French structure keeps a closed center.}))
+2. Nf3 Nc6 3. Bb5 a6 *
+
+[Event "Embedded comment repair"]
+[Result "*"]
+
+{Compare 1. d4 d5 2. c4 e6, then inspect the pawn structure.} *
+
+[Event "Black numbering from FEN"]
+[SetUp "1"]
+[FEN "8/8/8/8/8/6k1/8/4K3 b - - 0 19"]
+[Result "*"]
+
+19... Kf3 {Black approaches the king.} 20. Kf1 *
